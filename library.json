@@ -1,0 +1,12 @@
+{
+    "name": "ESP32-Serial-Studio-Dashboard-Generator",
+    "version": "1.0.0",
+    "description": "Generates Serial Studio dashboard JSON from C++ configuration structs",
+    "frameworks": "*",
+    "platforms": "*",
+    "build": {
+        "srcFilter": [
+            "+<ss_dashboard.cpp>"
+        ]
+    }
+}
