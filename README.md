@@ -1,10 +1,12 @@
-# ESP32 Serial Studio Dashboard Generator
+# [Serial Studio] Device Defined Dashboard
 
 A lightweight C++ library for ESP32 (and compatible boards) that generates
 [Serial Studio](https://serial-studio.github.io/) dashboard JSON from a
 compile-time configuration.  It is decoupled from any transport layer — you
 supply the configuration structs, call `serialize()`, and send the resulting
 frame however you like (USB serial, TCP, WebSocket, etc.).
+
+![Example result](./resources/example_output.png)
 
 ---
 
