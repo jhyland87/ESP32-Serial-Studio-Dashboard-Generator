@@ -1,6 +1,6 @@
 /**
  * @file BasicSerial.ino
- * @brief Minimal ESP32-Serial-Studio-Dashboard-Generator example.
+ * @brief Minimal Device-Defined-Dashboard example.
  *
  * Simulates an environment sensor (temperature, humidity, pressure, light)
  * and streams Serial Studio dashboard frames over USB-CDC serial at 1 Hz.

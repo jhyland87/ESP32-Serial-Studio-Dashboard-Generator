@@ -1,5 +1,5 @@
 {
-    "name": "ESP32-Serial-Studio-Dashboard-Generator",
+    "name": "Device-Defined-Dashboard",
     "version": "1.0.0",
     "description": "Generates Serial Studio dashboard JSON from C++ configuration structs",
     "frameworks": "*",
