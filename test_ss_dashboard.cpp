@@ -219,6 +219,59 @@ void test_dashboard_initial_values_are_zero(void) {
     TEST_ASSERT_EQUAL_STRING("0", val);
 }
 
+void test_dashboard_serialize_pretty_has_delimiters(void) {
+    ss::Dashboard dash(kTestCfg);
+    dash.begin();
+
+    char buf[16384];
+    const size_t len = dash.serialize(buf, sizeof(buf), /*pretty=*/true);
+    TEST_ASSERT_GREATER_THAN(4, len);
+
+    // Prefix must still be /*
+    TEST_ASSERT_EQUAL_CHAR('/', buf[0]);
+    TEST_ASSERT_EQUAL_CHAR('*', buf[1]);
+
+    // Suffix must end with \r\n\r\n
+    TEST_ASSERT_EQUAL_CHAR('\r', buf[len - 2]);
+    TEST_ASSERT_EQUAL_CHAR('\n', buf[len - 1]);
+
+    // In pretty mode a '\n' appears before the closing */
+    // i.e. …JSON…\n*/\r\n\r\n  →  buf[len-6] == '\n', buf[len-5] == '*', buf[len-4] == '/'
+    TEST_ASSERT_EQUAL_CHAR('\n', buf[len - 6]);
+    TEST_ASSERT_EQUAL_CHAR('*',  buf[len - 5]);
+    TEST_ASSERT_EQUAL_CHAR('/',  buf[len - 4]);
+}
+
+void test_dashboard_serialize_pretty_is_larger(void) {
+    ss::Dashboard dash(kTestCfg);
+    dash.begin();
+
+    char buf[16384];
+    const size_t compactLen = dash.serialize(buf, sizeof(buf), /*pretty=*/false);
+    const size_t prettyLen  = dash.serialize(buf, sizeof(buf), /*pretty=*/true);
+
+    // Pretty output must be strictly larger (indentation adds bytes).
+    TEST_ASSERT_GREATER_THAN(compactLen, prettyLen);
+}
+
+void test_dashboard_serialize_pretty_is_valid_json(void) {
+    ss::Dashboard dash(kTestCfg);
+    dash.begin();
+
+    char buf[16384];
+    const size_t len = dash.serialize(buf, sizeof(buf), /*pretty=*/true);
+    TEST_ASSERT_GREATER_THAN(4, len);
+
+    // The content between /* and the closing \n*/ must be valid JSON.
+    // Find the closing \n*/ by scanning backwards from the end.
+    // buf layout: /*{…pretty JSON…}\n*/\r\n\r\n\0
+    // JSON starts at buf+2; ends at buf[len-6] which is '\n' before */
+    JsonDocument doc;
+    const DeserializationError err = deserializeJson(doc, buf + 2);
+    TEST_ASSERT_TRUE(err == DeserializationError::Ok);
+    TEST_ASSERT_NOT_NULL(doc["title"].as<const char*>());
+}
+
 // ─── Test runner ─────────────────────────────────────────────────────────────
 
 void run_dashboard_tests() {
@@ -233,4 +286,7 @@ void run_dashboard_tests() {
     RUN_TEST(test_dashboard_update_preserves_structure);
     RUN_TEST(test_dashboard_serialize_buffer_too_small);
     RUN_TEST(test_dashboard_initial_values_are_zero);
+    RUN_TEST(test_dashboard_serialize_pretty_has_delimiters);
+    RUN_TEST(test_dashboard_serialize_pretty_is_larger);
+    RUN_TEST(test_dashboard_serialize_pretty_is_valid_json);
 }

@@ -19,8 +19,10 @@
  */
 
 #pragma once
-
+#include <map>
+#include <string>
 #include <cstdint>
+#include "ss_icons.h"
 
 namespace ss {
 
@@ -31,7 +33,10 @@ enum class WidgetType : uint8_t {
     None,           ///< No widget
     Gauge,          ///< Radial gauge
     Bar,            ///< Horizontal / vertical bar
-    Led             ///< LED indicator
+    Led,             ///< LED indicator
+    Compass,
+    Plot,
+    FFT // < FFT Plot
 };
 
 /** Per-group widget type. */
@@ -105,4 +110,6 @@ struct DashboardCfg {
     uint8_t           actionCount = 0;
 };
 
+
 } // namespace ss
+

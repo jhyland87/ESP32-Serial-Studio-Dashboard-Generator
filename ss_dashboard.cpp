@@ -42,7 +42,7 @@ bool Dashboard::begin() {
     doc_.clear();
     slotCount_ = 0;
 
-    doc_["title"] = cfg_.title ? cfg_.title : "Dashboard";
+    doc_[ss::Keys::Title] = cfg_.title ? cfg_.title : "Dashboard";
 
     buildActions();
 
@@ -50,7 +50,7 @@ bool Dashboard::begin() {
     doc_["decoder"]             = 0;
     doc_["hexadecimalDelimiters"] = false;
 
-    auto layout = doc_["dashboardLayout"].to<JsonObject>();
+    auto layout = doc_[ss::Keys::DashboardLayout].to<JsonObject>();
     layout["autoLayout"] = true;
     layout["windowOrder"].to<JsonArray>();
 
@@ -62,64 +62,64 @@ bool Dashboard::begin() {
 // ─── buildActions() ──────────────────────────────────────────────────────────
 
 void Dashboard::buildActions() {
-    auto actions = doc_["actions"].to<JsonArray>();
+    auto actions = doc_[ss::Keys::Actions].to<JsonArray>();
 
     for (uint8_t i = 0; i < cfg_.actionCount; ++i) {
         const auto& a = cfg_.actions[i];
         auto obj = actions.add<JsonObject>();
 
-        obj["autoExecuteOnConnect"] = false;
-        obj["binary"]               = false;
-        obj["eol"]                  = a.eol  ? a.eol  : "\n";
-        obj["icon"]                 = a.icon ? a.icon : "";
-        obj["timerIntervalMs"]      = 100;
-        obj["timerMode"]            = 0;
-        obj["title"]                = a.title  ? a.title  : "";
-        obj["txData"]               = a.txData ? a.txData : "";
+        obj[ss::Keys::AutoExecute] = false;
+        obj[ss::Keys::Binary]               = false;
+        obj[ss::Keys::EOL]                  = a.eol  ? a.eol  : "\n";
+        obj[ss::Keys::Icon]                 = a.icon ? a.icon : "";
+        obj[ss::Keys::TimerInterval]        = 100;
+        obj[ss::Keys::TimerMode]            = 0;
+        obj[ss::Keys::Title]                = a.title  ? a.title  : "";
+        obj[ss::Keys::TxData]               = a.txData ? a.txData : "";
     }
 }
 
 // ─── buildGroups() ───────────────────────────────────────────────────────────
 
 void Dashboard::buildGroups() {
-    auto groups = doc_["groups"].to<JsonArray>();
+    auto groups = doc_[ss::Keys::Groups].to<JsonArray>();
 
     for (uint8_t gi = 0; gi < cfg_.groupCount; ++gi) {
         const auto& grp = cfg_.groups[gi];
         auto gObj = groups.add<JsonObject>();
 
-        gObj["title"]  = grp.title ? grp.title : "";
-        gObj["widget"] = groupWidgetStr(grp.widget);
+        gObj[ss::Keys::Title]  = grp.title ? grp.title : "";
+        gObj[ss::Keys::Widget] = groupWidgetStr(grp.widget);
 
-        auto datasets = gObj["datasets"].to<JsonArray>();
+        auto datasets = gObj[ss::Keys::Datasets].to<JsonArray>();
 
         for (uint8_t di = 0; di < grp.datasetCount; ++di) {
             const auto& ds = grp.datasets[di];
             auto dObj = datasets.add<JsonObject>();
 
-            dObj["alarmEnabled"]    = ds.alarmEnabled;
-            dObj["alarmHigh"]       = ds.alarmHigh;
-            dObj["alarmLow"]        = ds.alarmLow;
-            dObj["fft"]             = ds.fft;
-            dObj["fftMax"]          = 0;
-            dObj["fftMin"]          = 0;
-            dObj["fftSamples"]      = ds.fftSamples;
-            dObj["fftSamplingRate"] = ds.fftSamplingRate;
-            dObj["graph"]           = ds.graph;
-            dObj["index"]           = ds.index;
-            dObj["led"]             = ds.led;
-            dObj["ledHigh"]         = ds.ledHigh;
-            dObj["log"]             = ds.log;
-            dObj["overviewDisplay"] = ds.overviewDisplay;
-            dObj["plotMax"]         = ds.plotMax;
-            dObj["plotMin"]         = ds.plotMin;
-            dObj["title"]           = ds.title ? ds.title : "";
-            dObj["units"]           = ds.units ? ds.units : "";
-            dObj["value"]           = "0";   // placeholder — update() patches this
-            dObj["widget"]          = widgetStr(ds.widget);
-            dObj["widgetMax"]       = ds.widgetMax;
-            dObj["widgetMin"]       = ds.widgetMin;
-            dObj["xAxis"]           = ds.xAxis;
+            dObj[ss::Keys::AlarmEnabled]    = ds.alarmEnabled;
+            dObj[ss::Keys::AlarmHigh]       = ds.alarmHigh;
+            dObj[ss::Keys::AlarmLow]        = ds.alarmLow;
+            dObj[ss::Keys::FFT]             = ds.fft;
+            dObj[ss::Keys::FFTMax]          = 0;
+            dObj[ss::Keys::FFTMin]          = 0;
+            dObj[ss::Keys::FFTSamples]      = ds.fftSamples;
+            dObj[ss::Keys::FFTSamplingRate] = ds.fftSamplingRate;
+            dObj[ss::Keys::Graph]           = ds.graph;
+            dObj[ss::Keys::Index]           = ds.index;
+            dObj[ss::Keys::LED]             = ds.led;
+            dObj[ss::Keys::LedHigh]         = ds.ledHigh;
+            dObj[ss::Keys::Log]             = ds.log;
+            dObj[ss::Keys::Overview]        = ds.overviewDisplay;
+            dObj[ss::Keys::PltMax]          = ds.plotMax;
+            dObj[ss::Keys::PltMin]          = ds.plotMin;
+            dObj[ss::Keys::Title]           = ds.title ? ds.title : "";
+            dObj[ss::Keys::Units]           = ds.units ? ds.units : "";
+            dObj[ss::Keys::Value]           = "0";   // placeholder — update() patches this
+            dObj[ss::Keys::Widget]          = widgetStr(ds.widget);
+            dObj[ss::Keys::WgtMax]          = ds.widgetMax;
+            dObj[ss::Keys::WgtMin]          = ds.widgetMin;
+            dObj[ss::Keys::XAxis]           = ds.xAxis;
 
             // Register a value slot if we have a telemetry key
             if (ds.telemetryKey && ds.telemetryKey[0] != '\0' &&
@@ -187,7 +187,7 @@ const char* Dashboard::resolveKey(const JsonDocument& doc,
 void Dashboard::update(const JsonDocument& telemetry) {
     char scratch[32];
 
-    auto groups = doc_["groups"].as<JsonArray>();
+    auto groups = doc_[ss::Keys::Groups].as<JsonArray>();
 
     for (uint8_t s = 0; s < slotCount_; ++s) {
         const auto& slot = slots_[s];
@@ -197,11 +197,19 @@ void Dashboard::update(const JsonDocument& telemetry) {
         if (!val) continue;
 
         // Navigate to the dataset and set "value".
-        auto ds = groups[slot.groupIdx]["datasets"][slot.datasetIdx];
+        auto ds = groups[slot.groupIdx][ss::Keys::Datasets][slot.datasetIdx];
         if (!ds.isNull()) {
-            ds["value"] = val;
+            ds[ss::Keys::Value] = val;
         }
     }
+}
+
+static const char* iconToString(DashboardIcon icon) {
+    auto it = DashboardIconMap.find(icon);
+    if (it != DashboardIconMap.end()) {
+        return it->second.c_str();
+    }
+    return nullptr;
 }
 
 // ─── estimateSize() ──────────────────────────────────────────────────────────
@@ -214,31 +222,70 @@ size_t Dashboard::estimateSize() const {
 
 // ─── serialize() — write "/*{…JSON…}*/" into buffer ──────────────────────────
 
-size_t Dashboard::serialize(char* buf, size_t bufLen) const {
-    if (!buf || bufLen < 6) return 0;   // minimum: "/*{}*/" + NUL
+size_t Dashboard::serialize(char* buf, size_t bufLen, bool pretty) const {
+    if (!buf || bufLen < 6) {
+#ifdef ARDUINO
+        Serial.printf("[ss] serialize: null buf or bufLen(%u) < 6\n",
+                      static_cast<unsigned>(bufLen));
+#endif
+        return 0;
+    }
 
-    // Write prefix
+    // Write prefix.
     buf[0] = '/';
     buf[1] = '*';
 
-    // Serialise JSON after the 2-byte prefix.
-    // Leave room for prefix(2) + suffix(2) + CRLF(2) + NUL(1) = 7 overhead bytes.
-    const size_t room    = bufLen - 7;
-    const size_t jsonLen = serializeJson(doc_, static_cast<void*>(buf + 2), room);
-    if (jsonLen == 0) return 0;
+    // Leave room for: prefix(2) + suffix(2) + CRLF×2(4) + NUL(1) = 9 bytes
+    // overhead, plus one extra '\n' before '*/' in pretty mode.
+    // pretty-printed JSON is ~3–4× the compact size; callers must supply
+    // a buffer sized accordingly (estimateSize() * 4 is a safe bound).
+    if (bufLen < 9) {
+#ifdef ARDUINO
+        Serial.printf("[ss] serialize: bufLen(%u) < 9\n",
+                      static_cast<unsigned>(bufLen));
+#endif
+        return 0;
+    }
+    const size_t room = bufLen - 9;
 
-    // Write suffix: "*/" followed by "\r\n"
-    const size_t pos = 2 + jsonLen;
-    if (pos + 4 >= bufLen) return 0;    // no room for suffix + CRLF + NUL
-    buf[pos]     = '*';
-    buf[pos + 1] = '/';
-    buf[pos + 2] = '\r';
-    buf[pos + 3] = '\n';
-    buf[pos + 4] = '\r';
-    buf[pos + 5] = '\n';
-    buf[pos + 6] = '\0';
+    const size_t jsonLen = pretty
+        ? serializeJsonPretty(doc_, static_cast<void*>(buf + 2), room)
+        :         serializeJson(doc_, static_cast<void*>(buf + 2), room);
 
-    return pos + 6;   // total bytes written (excluding NUL)
+    if (jsonLen == 0) {
+#ifdef ARDUINO
+        Serial.printf("[ss] serialize: serializeJson returned 0 "
+                      "(doc empty? room=%u)\n", static_cast<unsigned>(room));
+#endif
+        return 0;
+    }
+
+    // Write suffix: "\n*/\r\n\r\n" in pretty mode (delimiter on its own line);
+    //               "*/\r\n\r\n"  in compact mode.
+    size_t pos = 2 + jsonLen;
+    const size_t need = pretty ? 8u : 7u;  // bytes needed after pos (incl. NUL)
+    if (pos + need > bufLen) {
+#ifdef ARDUINO
+        Serial.printf("[ss] serialize: suffix overflow "
+                      "(pos=%u need=%u bufLen=%u jsonLen=%u)\n",
+                      static_cast<unsigned>(pos),
+                      static_cast<unsigned>(need),
+                      static_cast<unsigned>(bufLen),
+                      static_cast<unsigned>(jsonLen));
+#endif
+        return 0;
+    }
+
+    if (pretty) buf[pos++] = '\n';  // newline before */ in pretty mode
+    buf[pos++] = '*';
+    buf[pos++] = '/';
+    buf[pos++] = '\r';
+    buf[pos++] = '\n';
+    buf[pos++] = '\r';
+    buf[pos++] = '\n';
+    buf[pos]   = '\0';
+
+    return pos;   // bytes written, excluding NUL
 }
 
 } // namespace ss
