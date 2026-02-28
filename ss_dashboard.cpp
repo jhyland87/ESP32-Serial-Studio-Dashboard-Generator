@@ -84,6 +84,11 @@ void Dashboard::buildActions() {
 void Dashboard::buildGroups() {
     auto groups = doc_[ss::Keys::Groups].to<JsonArray>();
 
+    // Auto-assigned, 1-based index that increments across every dataset in
+    // every group.  Serial Studio uses this for colour assignment and it must
+    // be present and unique — even for datasets whose config leaves .index at 0.
+    uint8_t autoIndex = 1;
+
     for (uint8_t gi = 0; gi < cfg_.groupCount; ++gi) {
         const auto& grp = cfg_.groups[gi];
         auto gObj = groups.add<JsonObject>();
@@ -106,7 +111,7 @@ void Dashboard::buildGroups() {
             dObj[ss::Keys::FFTSamples]      = ds.fftSamples;
             dObj[ss::Keys::FFTSamplingRate] = ds.fftSamplingRate;
             dObj[ss::Keys::Graph]           = ds.graph;
-            dObj[ss::Keys::Index]           = ds.index;
+            dObj[ss::Keys::Index]           = autoIndex++;
             dObj[ss::Keys::LED]             = ds.led;
             dObj[ss::Keys::LedHigh]         = ds.ledHigh;
             dObj[ss::Keys::Log]             = ds.log;

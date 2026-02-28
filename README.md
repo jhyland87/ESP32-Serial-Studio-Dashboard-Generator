@@ -157,7 +157,7 @@ detection** (`/*` / `*/`) and the dashboard will appear automatically.
 ### `ss::ActionCfg`
 
 Action buttons appear in Serial Studio's toolbar and transmit a short string
-back to the device when clicked.
+back to the sysinfo when clicked.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
