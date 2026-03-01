@@ -266,9 +266,9 @@ size_t Dashboard::serialize(char* buf, size_t bufLen, bool pretty) const {
     }
 
     // Write suffix: "\n*/\r\n\r\n" in pretty mode (delimiter on its own line);
-    //               "*/\r\n\r\n"  in compact mode.
+    //               "*/\r\n"     in compact mode.
     size_t pos = 2 + jsonLen;
-    const size_t need = pretty ? 8u : 7u;  // bytes needed after pos (incl. NUL)
+    const size_t need = pretty ? 8u : 5u;  // bytes needed after pos (incl. NUL)
     if (pos + need > bufLen) {
 #ifdef ARDUINO
         Serial.printf("[ss] serialize: suffix overflow "
@@ -286,8 +286,10 @@ size_t Dashboard::serialize(char* buf, size_t bufLen, bool pretty) const {
     buf[pos++] = '/';
     buf[pos++] = '\r';
     buf[pos++] = '\n';
-    buf[pos++] = '\r';
-    buf[pos++] = '\n';
+    if (pretty) {
+        buf[pos++] = '\r';
+        buf[pos++] = '\n';
+    }
     buf[pos]   = '\0';
 
     return pos;   // bytes written, excluding NUL
