@@ -236,10 +236,10 @@ void test_dashboard_serialize_pretty_has_delimiters(void) {
     TEST_ASSERT_EQUAL_CHAR('\n', buf[len - 1]);
 
     // In pretty mode a '\n' appears before the closing */
-    // i.e. …JSON…\n*/\r\n\r\n  →  buf[len-6] == '\n', buf[len-5] == '*', buf[len-4] == '/'
-    TEST_ASSERT_EQUAL_CHAR('\n', buf[len - 6]);
-    TEST_ASSERT_EQUAL_CHAR('*',  buf[len - 5]);
-    TEST_ASSERT_EQUAL_CHAR('/',  buf[len - 4]);
+    // i.e. …JSON…\n*/\r\n\r\n  →  buf[len-7] == '\n', buf[len-6] == '*', buf[len-5] == '/'
+    TEST_ASSERT_EQUAL_CHAR('\n', buf[len - 7]);
+    TEST_ASSERT_EQUAL_CHAR('*',  buf[len - 6]);
+    TEST_ASSERT_EQUAL_CHAR('/',  buf[len - 5]);
 }
 
 void test_dashboard_serialize_pretty_is_larger(void) {
